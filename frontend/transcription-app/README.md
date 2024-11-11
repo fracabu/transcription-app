@@ -54,3 +54,62 @@ npm run lint
 ---
 
 Questa struttura e configurazione rendono il progetto pronto per la scalabilità e facile da mantenere nel tempo.
+Ecco i comandi ordinati per avviare correttamente la tua applicazione **Transcription App** sia per il backend (Flask) che per il frontend (Vue + Vite).
+
+---
+
+## 🎙️ Transcription App - Guida all'avvio
+
+### **1. Avvio del Backend (Flask)**
+
+1. **Apri il terminale** e vai nella cartella `backend`:
+   ```sh
+   cd transcription-app/backend
+   ```
+
+2. **Installa le dipendenze**:
+   ```sh
+   pip install -r requirements.txt
+   ```
+   *Se `requirements.txt` non è presente, installa manualmente i pacchetti come `flask`, `azure-cognitiveservices-speech`, e `pydub` con `pip install nome_pacchetto`.*
+
+3. **Avvia il server Flask**:
+   ```sh
+   python app.py
+   ```
+
+   Il backend sarà ora attivo su `http://127.0.0.1:5000`.
+
+### **2. Avvio del Frontend (Vue + Vite)**
+
+1. **Apri un nuovo terminale** e vai nella cartella `frontend/transcription-app`:
+   ```sh
+   cd transcription-app/frontend/transcription-app
+   ```
+
+2. **Installa le dipendenze**:
+   ```sh
+   npm install
+   ```
+
+3. **Avvia il server di sviluppo Vite**:
+   ```sh
+   npm run dev
+   ```
+
+   Il frontend sarà disponibile su `http://localhost:5173` o una porta simile (indicata nel terminale).
+
+---
+
+### **Riepilogo dei comandi**
+
+1. **Backend**:
+   - `cd transcription-app/backend`
+   - `pip install -r requirements.txt`
+   - `python app.py`
+
+2. **Frontend**:
+   - `cd transcription-app/frontend/transcription-app`
+   - `npm install`
+   - `npm run dev`
+
