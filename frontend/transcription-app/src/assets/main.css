@@ -24,12 +24,28 @@ a,
 @media (min-width: 1024px) {
   body {
     display: flex;
-    place-items: center;
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra orizzontalmente */
+    min-height: 100vh; /* Imposta l'altezza minima per centrare */
   }
 
   #app {
-    display: grid;
+    display: flex;
     grid-template-columns: 1fr 1fr;
+    gap: 2rem; /* Spazio tra le colonne */
     padding: 0 2rem;
+  }
+
+  .card {
+    max-width: 500px; /* Imposta una larghezza massima per evitare che si allunghino troppo */
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
   }
 }
