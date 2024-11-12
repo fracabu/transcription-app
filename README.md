@@ -1,6 +1,7 @@
 # 🎙️ Transcription App
 
-![image](https://github.com/user-attachments/assets/8c4da196-8f85-42b7-b7eb-0eabc6fedee6)
+![image](https://github.com/user-attachments/assets/92112801-2b04-429a-b43c-2a2a4d0f609b)
+
 
 `transcription-app` è una landing page sviluppata in Vue 3 e Vite. Questo progetto offre una base per costruire applicazioni moderne, ottimizzate per prestazioni e sviluppo rapido, sfruttando strumenti e tecnologie come TypeScript, ESLint e una configurazione iniziale per facilitare lo sviluppo.
 
