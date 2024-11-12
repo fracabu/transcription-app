@@ -1,4 +1,5 @@
 
+
 # 🎙️ Transcription App
 
 ![image](https://github.com/user-attachments/assets/92112801-2b04-429a-b43c-2a2a4d0f609b)
@@ -91,55 +92,20 @@ Assicurati di avere [Node.js](https://nodejs.org/) e [Python](https://www.python
 
 ---
 
-Questa struttura e configurazione rendono il progetto pronto per la scalabilità e facile da mantenere nel tempo.
-Ecco i comandi ordinati per avviare correttamente la tua applicazione **Transcription App** sia per il backend (Flask) che per il frontend (Vue + Vite).
+## 📝 Configurazione di Azure Cognitive Services
+
+Per usare le funzionalità di trascrizione e sintesi, è necessario configurare le credenziali di Azure. Aggiungi le seguenti variabili nel tuo ambiente o in un file `.env`:
+
+```plaintext
+AZURE_SPEECH_KEY=your_azure_speech_key
+AZURE_REGION=your_azure_region
+```
+
+Puoi ottenere queste informazioni dalla tua dashboard Azure, nella sezione Cognitive Services.
 
 ---
 
-## 🎙️ Transcription App - Guida all'avvio
-
-### **1. Avvio del Backend (Flask)**
-
-1. **Apri il terminale** e vai nella cartella `backend`:
-   ```sh
-   cd transcription-app/backend
-   ```
-
-2. **Installa le dipendenze**:
-   ```sh
-   pip install -r requirements.txt
-   ```
-   *Se `requirements.txt` non è presente, installa manualmente i pacchetti come `flask`, `azure-cognitiveservices-speech`, e `pydub` con `pip install nome_pacchetto`.*
-
-3. **Avvia il server Flask**:
-   ```sh
-   python app.py
-   ```
-
-   Il backend sarà ora attivo su `http://127.0.0.1:5000`.
-
-### **2. Avvio del Frontend (Vue + Vite)**
-
-1. **Apri un nuovo terminale** e vai nella cartella `frontend/transcription-app`:
-   ```sh
-   cd transcription-app/frontend/transcription-app
-   ```
-
-2. **Installa le dipendenze**:
-   ```sh
-   npm install
-   ```
-
-3. **Avvia il server di sviluppo Vite**:
-   ```sh
-   npm run dev
-   ```
-
-   Il frontend sarà disponibile su `http://localhost:5173` o una porta simile (indicata nel terminale).
-
----
-
-### **Riepilogo dei comandi**
+## 📋 Riepilogo dei comandi
 
 1. **Backend**:
    - `cd transcription-app/backend`
@@ -147,7 +113,16 @@ Ecco i comandi ordinati per avviare correttamente la tua applicazione **Transcri
    - `python app.py`
 
 2. **Frontend**:
-   - `cd transcription-app/frontend/transcription-app`
+   - `cd transcription-app/frontend`
    - `npm install`
    - `npm run dev`
+
+---
+
+## 📄 License
+
+Questo progetto è rilasciato sotto la licenza MIT.
+
+
+
 
