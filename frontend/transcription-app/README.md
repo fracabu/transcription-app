@@ -27,7 +27,7 @@ Assicurati di avere [Node.js](https://nodejs.org/) e [Python](https://www.python
    git clone https://github.com/yourusername/transcription-app.git
    ```
 
-2. **Installa le dipendenze del frontend prova**:
+2. **Installa le dipendenze del frontend prova2**:
 
    ```sh
    cd transcription-app/frontend
