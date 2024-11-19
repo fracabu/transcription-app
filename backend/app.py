@@ -94,7 +94,7 @@ def convert_to_wav(input_path, output_path):
         return False
 
 def continuous_recognize_with_diarization(speech_config, audio_config):
-    """Perform continuous speech recognition with diarization using numbered speakers."""
+    """Perform continuous speech recognition with timestamps, handling both single and multiple speakers."""
     transcriber = ConversationTranscriber(speech_config=speech_config, audio_config=audio_config)
     done = False
     all_results = []
@@ -102,22 +102,49 @@ def continuous_recognize_with_diarization(speech_config, audio_config):
     # Dizionario per mappare gli ID degli speaker ai numeri
     speaker_mapping = {}
     current_speaker_number = 1
+    
+    # Lista per tenere traccia degli speaker unici
+    unique_speakers = set()
+
+    def format_timestamp(offset_ticks):
+        """Convert ticks (100-nanosecond units) to HH:MM:SS format."""
+        # Convert ticks to seconds (1 tick = 100 nanoseconds)
+        total_seconds = offset_ticks // 10_000_000
+        
+        # Calculate hours, minutes, and seconds
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+        
+        return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}"
 
     def handle_transcribed(evt: ConversationTranscriptionEventArgs):
         nonlocal current_speaker_number
         
         if evt.result.reason == ResultReason.RecognizedSpeech and evt.result.text:
             speaker_id = evt.result.speaker_id if evt.result.speaker_id else "Unknown"
+            unique_speakers.add(speaker_id)
             
             # Assegna un numero progressivo a ogni nuovo speaker
             if speaker_id not in speaker_mapping:
                 speaker_mapping[speaker_id] = f"Speaker {current_speaker_number}"
                 current_speaker_number += 1
             
-            # Usa il numero assegnato allo speaker
-            numbered_speaker = speaker_mapping[speaker_id]
-            all_results.append(f"{numbered_speaker}: {evt.result.text}")
-            logger.debug(f"Recognized chunk from {numbered_speaker}: {evt.result.text}")
+            # Ottieni il timestamp di inizio e fine
+            start_time = format_timestamp(evt.result.offset)
+            end_time = format_timestamp(evt.result.offset + evt.result.duration)
+            
+            # Formatta il risultato in base al numero di speaker
+            if len(unique_speakers) == 1:
+                # Single speaker format - no speaker identification
+                result_line = f"[{start_time} - {end_time}] {evt.result.text}"
+            else:
+                # Multiple speakers format - include speaker identification
+                numbered_speaker = speaker_mapping[speaker_id]
+                result_line = f"[{start_time} - {end_time}] {numbered_speaker}: {evt.result.text}"
+            
+            all_results.append(result_line)
+            logger.debug(f"Recognized chunk: {result_line}")
 
     def stop_cb(evt):
         nonlocal done
@@ -130,7 +157,7 @@ def continuous_recognize_with_diarization(speech_config, audio_config):
     transcriber.canceled.connect(stop_cb)
 
     # Start continuous recognition
-    logger.debug("Starting continuous recognition with diarization...")
+    logger.debug("Starting continuous recognition...")
     transcriber.start_transcribing_async().get()
     
     # Wait for recognition to complete
@@ -144,7 +171,9 @@ def continuous_recognize_with_diarization(speech_config, audio_config):
     transcriber.dispose()
     gc.collect()
     
-    return '\n'.join(all_results)
+    # Add a header indicating if it was single or multiple speakers
+    header = "Single Speaker Transcription:\n" if len(unique_speakers) == 1 else "Multiple Speakers Transcription:\n"
+    return header + '\n'.join(all_results)
 
 @app.route('/api/transcribe', methods=['POST'])
 def transcribe():
