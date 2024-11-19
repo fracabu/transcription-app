@@ -93,87 +93,124 @@ def convert_to_wav(input_path, output_path):
         logger.error(f"Error converting audio: {str(e)}")
         return False
 
-def continuous_recognize_with_diarization(speech_config, audio_config):
-    """Perform continuous speech recognition with timestamps, handling both single and multiple speakers."""
-    transcriber = ConversationTranscriber(speech_config=speech_config, audio_config=audio_config)
-    done = False
-    all_results = []
-    
-    # Dizionario per mappare gli ID degli speaker ai numeri
-    speaker_mapping = {}
-    current_speaker_number = 1
-    
-    # Lista per tenere traccia degli speaker unici
-    unique_speakers = set()
+def continuous_recognize_with_diarization(speech_config, audio_config, output_format="verbatim"):
+    transcriber = None
+    try:
+        transcriber = ConversationTranscriber(speech_config=speech_config, audio_config=audio_config)
+        done = False
+        all_results = []
+        segment_counter = 1
+        speaker_mapping = {}
+        current_speaker_number = 1
+        unique_speakers = set()
+        last_speaker_id = None
+        last_end_time = 0
+        PAUSE_THRESHOLD = 20_000_000  # 2 seconds
 
-    def format_timestamp(offset_ticks):
-        """Convert ticks (100-nanosecond units) to HH:MM:SS format."""
-        # Convert ticks to seconds (1 tick = 100 nanoseconds)
-        total_seconds = offset_ticks // 10_000_000
-        
-        # Calculate hours, minutes, and seconds
-        hours = total_seconds // 3600
-        minutes = (total_seconds % 3600) // 60
-        seconds = total_seconds % 60
-        
-        return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}"
+        def format_time(offset_ticks, srt=False):
+            """Format timestamp as HH:MM:SS or HH:MM:SS,mmm for SRT."""
+            total_seconds = offset_ticks // 10_000_000
+            milliseconds = (offset_ticks // 10_000) % 1000
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            if srt:
+                return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d},{int(milliseconds):03d}"
+            return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}"
 
-    def handle_transcribed(evt: ConversationTranscriptionEventArgs):
-        nonlocal current_speaker_number
-        
-        if evt.result.reason == ResultReason.RecognizedSpeech and evt.result.text:
-            speaker_id = evt.result.speaker_id if evt.result.speaker_id else "Unknown"
-            unique_speakers.add(speaker_id)
-            
-            # Assegna un numero progressivo a ogni nuovo speaker
-            if speaker_id not in speaker_mapping:
-                speaker_mapping[speaker_id] = f"Speaker {current_speaker_number}"
-                current_speaker_number += 1
-            
-            # Ottieni il timestamp di inizio e fine
-            start_time = format_timestamp(evt.result.offset)
-            end_time = format_timestamp(evt.result.offset + evt.result.duration)
-            
-            # Formatta il risultato in base al numero di speaker
-            if len(unique_speakers) == 1:
-                # Single speaker format - no speaker identification
-                result_line = f"[{start_time} - {end_time}] {evt.result.text}"
-            else:
-                # Multiple speakers format - include speaker identification
-                numbered_speaker = speaker_mapping[speaker_id]
-                result_line = f"[{start_time} - {end_time}] {numbered_speaker}: {evt.result.text}"
-            
-            all_results.append(result_line)
-            logger.debug(f"Recognized chunk: {result_line}")
+        def format_speaker_line(speaker, text, show_speaker=True):
+            """Add speaker information to the text if required."""
+            if not show_speaker or not speaker:
+                return text
+            return f"{speaker}: {text}"
 
-    def stop_cb(evt):
-        nonlocal done
-        logger.debug("Recognition stopped.")
-        done = True
+        def handle_transcribed(evt: ConversationTranscriptionEventArgs):
+            """Handle recognized speech and format it."""
+            nonlocal current_speaker_number, segment_counter, last_speaker_id, last_end_time
 
-    # Connect callbacks
-    transcriber.transcribed.connect(handle_transcribed)
-    transcriber.session_stopped.connect(stop_cb)
-    transcriber.canceled.connect(stop_cb)
+            if evt.result.reason == ResultReason.RecognizedSpeech and evt.result.text:
+                current_offset = evt.result.offset
+                text = evt.result.text.strip()
+                speaker_id = evt.result.speaker_id or "Unknown"
 
-    # Start continuous recognition
-    logger.debug("Starting continuous recognition...")
-    transcriber.start_transcribing_async().get()
-    
-    # Wait for recognition to complete
-    while not done:
-        time.sleep(.5)
-    
-    # Stop recognition
-    transcriber.stop_transcribing_async().get()
-    
-    # Clean up
-    transcriber.dispose()
-    gc.collect()
-    
-    # Add a header indicating if it was single or multiple speakers
-    header = "Single Speaker Transcription:\n" if len(unique_speakers) == 1 else "Multiple Speakers Transcription:\n"
-    return header + '\n'.join(all_results)
+                if speaker_id not in speaker_mapping:
+                    speaker_mapping[speaker_id] = f"Speaker {current_speaker_number}"
+                    current_speaker_number += 1
+                    unique_speakers.add(speaker_id)
+
+                numbered_speaker = speaker_mapping[speaker_id] if len(unique_speakers) > 1 else None
+                start_time = format_time(current_offset)
+                end_time = format_time(current_offset + evt.result.duration)
+
+                # Determine if a new timestamp is needed
+                needs_timestamp = (
+                    speaker_id != last_speaker_id or
+                    (current_offset - last_end_time) > PAUSE_THRESHOLD or
+                    text.rstrip().endswith(('.', '?', '!'))
+                )
+
+                # Format result line based on the chosen output format
+                if output_format == "verbatim":
+                    result_line = (
+                        f"[{start_time}]\n{format_speaker_line(numbered_speaker, text)}"
+                        if needs_timestamp else format_speaker_line(numbered_speaker, text)
+                    )
+                elif output_format == "clean":
+                    result_line = format_speaker_line(numbered_speaker, text)
+                elif output_format == "subtitles":
+                    srt_start = format_time(current_offset, srt=True)
+                    srt_end = format_time(current_offset + evt.result.duration, srt=True)
+                    result_line = (f"{segment_counter}\n{srt_start} --> {srt_end}\n"
+                                   f"{format_speaker_line(numbered_speaker, text)}\n")
+                    segment_counter += 1
+                elif output_format == "timestamps":
+                    result_line = f"[{start_time} - {end_time}] {format_speaker_line(numbered_speaker, text)}"
+
+                # Merge consecutive segments from the same speaker
+                if not needs_timestamp and all_results and speaker_id == last_speaker_id:
+                    all_results[-1] += f" {text}"
+                else:
+                    all_results.append(result_line)
+
+                logger.debug(f"Recognized chunk: {result_line}")
+
+                last_speaker_id = speaker_id
+                last_end_time = current_offset + evt.result.duration
+
+        def stop_cb(evt):
+            nonlocal done
+            logger.debug("Recognition stopped.")
+            done = True
+
+        # Connect events
+        transcriber.transcribed.connect(handle_transcribed)
+        transcriber.session_stopped.connect(stop_cb)
+        transcriber.canceled.connect(stop_cb)
+
+        logger.debug(f"Starting continuous recognition with format: {output_format}")
+        transcriber.start_transcribing_async().get()
+
+        while not done:
+            time.sleep(0.5)
+
+        transcriber.stop_transcribing_async().get()
+
+        # Compile results based on format
+        if output_format in ["clean", "subtitles"]:
+            return '\n'.join(all_results)
+        else:
+            header = "Single Speaker Transcription:\n" if len(unique_speakers) == 1 else "Multiple Speakers Transcription:\n"
+            return header + '\n'.join(all_results)
+
+    finally:
+        if transcriber:
+            try:
+                transcriber.stop_transcribing_async().get()
+            except Exception:
+                pass
+            del transcriber
+            gc.collect()
+
 
 @app.route('/api/transcribe', methods=['POST'])
 def transcribe():
