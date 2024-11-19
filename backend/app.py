@@ -7,15 +7,19 @@ from azure.cognitiveservices.speech import (
     SpeechRecognizer,
     ResultReason
 )
+from azure.cognitiveservices.speech.transcription import (
+    ConversationTranscriber,
+    ConversationTranscriptionEventArgs
+)
+from werkzeug.utils import secure_filename
 from pydub import AudioSegment
 import os
 from dotenv import load_dotenv
 import tempfile
 import logging
-import wave
-import io
 import time
 import gc
+import io
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -27,7 +31,18 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# Get Azure credentials from environment variables
+# Directory per i file caricati e le trascrizioni
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'synthesized_audio')
+TRANSCRIPTION_FOLDER = os.path.join(os.getcwd(), 'transcriptions')
+
+# Crea le directory se non esistono
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(TRANSCRIPTION_FOLDER, exist_ok=True)
+
+# Configura Flask
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Configurazioni Azure
 speech_key = os.getenv('AZURE_SPEECH_KEY')
 speech_region = os.getenv('AZURE_SPEECH_REGION')
 
@@ -78,16 +93,31 @@ def convert_to_wav(input_path, output_path):
         logger.error(f"Error converting audio: {str(e)}")
         return False
 
-def continuous_recognize(speech_config, audio_config):
-    """Perform continuous speech recognition for long audio files."""
-    recognizer = SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
+def continuous_recognize_with_diarization(speech_config, audio_config):
+    """Perform continuous speech recognition with diarization using numbered speakers."""
+    transcriber = ConversationTranscriber(speech_config=speech_config, audio_config=audio_config)
     done = False
     all_results = []
+    
+    # Dizionario per mappare gli ID degli speaker ai numeri
+    speaker_mapping = {}
+    current_speaker_number = 1
 
-    def handle_result(evt):
+    def handle_transcribed(evt: ConversationTranscriptionEventArgs):
+        nonlocal current_speaker_number
+        
         if evt.result.reason == ResultReason.RecognizedSpeech and evt.result.text:
-            all_results.append(evt.result.text)
-            logger.debug(f"Recognized chunk: {evt.result.text}")
+            speaker_id = evt.result.speaker_id if evt.result.speaker_id else "Unknown"
+            
+            # Assegna un numero progressivo a ogni nuovo speaker
+            if speaker_id not in speaker_mapping:
+                speaker_mapping[speaker_id] = f"Speaker {current_speaker_number}"
+                current_speaker_number += 1
+            
+            # Usa il numero assegnato allo speaker
+            numbered_speaker = speaker_mapping[speaker_id]
+            all_results.append(f"{numbered_speaker}: {evt.result.text}")
+            logger.debug(f"Recognized chunk from {numbered_speaker}: {evt.result.text}")
 
     def stop_cb(evt):
         nonlocal done
@@ -95,81 +125,82 @@ def continuous_recognize(speech_config, audio_config):
         done = True
 
     # Connect callbacks
-    recognizer.recognized.connect(handle_result)
-    recognizer.session_stopped.connect(stop_cb)
-    recognizer.canceled.connect(stop_cb)
+    transcriber.transcribed.connect(handle_transcribed)
+    transcriber.session_stopped.connect(stop_cb)
+    transcriber.canceled.connect(stop_cb)
 
     # Start continuous recognition
-    logger.debug("Starting continuous recognition...")
-    recognizer.start_continuous_recognition()
+    logger.debug("Starting continuous recognition with diarization...")
+    transcriber.start_transcribing_async().get()
     
     # Wait for recognition to complete
     while not done:
         time.sleep(.5)
     
     # Stop recognition
-    recognizer.stop_continuous_recognition()
+    transcriber.stop_transcribing_async().get()
     
     # Clean up
-    recognizer.disposed = True
-    del recognizer
+    transcriber.dispose()
     gc.collect()
     
-    return ' '.join(all_results)
+    return '\n'.join(all_results)
 
 @app.route('/api/transcribe', methods=['POST'])
 def transcribe():
-    temp_files = []
     try:
-        # Get the audio file and language from the request
+        # Ottieni il file audio o video e la lingua dalla richiesta
         audio_file = request.files.get('audio')
         language = request.form.get('language', 'en-US')
-        
+
         if not audio_file:
             return jsonify({'error': 'No audio file provided'}), 400
-            
+
         logger.debug(f"Processing audio file: {audio_file.filename}")
         logger.debug(f"Selected language: {language}")
-        
-        # Create temporary files with explicit cleanup
-        with tempfile.NamedTemporaryFile(delete=False) as input_file, \
-             tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_file:
-            
-            input_path = input_file.name
-            wav_path = wav_file.name
-            temp_files.extend([input_path, wav_path])
-            
-            # Save the uploaded file
-            audio_file.save(input_path)
-            
-            # Convert to WAV with correct parameters
-            if not convert_to_wav(input_path, wav_path):
-                raise Exception("Failed to convert audio file to WAV format")
-            
-            # Create speech configuration
-            speech_config = create_speech_config(language)
-            
-            # Create audio configuration
-            audio_config = AudioConfig(filename=wav_path)
-            
-            # Perform continuous transcription
-            logger.debug("Starting continuous transcription...")
-            transcribed_text = continuous_recognize(speech_config, audio_config)
-            logger.debug("Transcription completed")
-            
-            if transcribed_text:
-                return jsonify({'transcription': transcribed_text})
-            else:
-                return jsonify({'error': 'No speech could be recognized'}), 400
-            
+
+        # Salva il file audio nella cartella "synthesized_audio"
+        input_path = os.path.join(UPLOAD_FOLDER, secure_filename(audio_file.filename))
+        audio_file.save(input_path)
+        logger.debug(f"File saved to: {input_path}")
+
+        # Percorso del file WAV convertito
+        wav_path = os.path.join(UPLOAD_FOLDER, f"{os.path.splitext(audio_file.filename)[0]}.wav")
+
+        # Converti il file audio in formato WAV
+        if not convert_to_wav(input_path, wav_path):
+            raise Exception("Failed to convert audio file to WAV format")
+
+        logger.debug(f"File converted to WAV: {wav_path}")
+
+        # Crea la configurazione per Azure Speech Service
+        speech_config = create_speech_config(language)
+        audio_config = AudioConfig(filename=wav_path)
+
+        # Esegui la trascrizione continua con diarizzazione
+        logger.debug("Starting continuous transcription with diarization...")
+        transcribed_text = continuous_recognize_with_diarization(speech_config, audio_config)
+        logger.debug("Transcription completed")
+
+        # Salva la trascrizione nella cartella "transcriptions"
+        if transcribed_text:
+            transcription_filename = f"{os.path.splitext(audio_file.filename)[0]}.txt"
+            transcription_file = os.path.join(TRANSCRIPTION_FOLDER, transcription_filename)
+            with open(transcription_file, 'w', encoding='utf-8') as f:
+                f.write(transcribed_text)
+
+            logger.debug(f"Transcription saved to: {transcription_file}")
+
+            return jsonify({
+                'transcription': transcribed_text,
+                'file_path': transcription_file
+            })
+        else:
+            return jsonify({'error': 'No speech could be recognized'}), 400
+
     except Exception as e:
         logger.error(f"Error in transcribe: {str(e)}")
         return jsonify({'error': str(e)}), 500
-    finally:
-        # Clean up temporary files
-        time.sleep(0.5)
-        for file_path in temp_files:
-            safe_delete_file(file_path)
 
 @app.route('/api/synthesize', methods=['POST'])
 def synthesize():
@@ -198,7 +229,6 @@ def synthesize():
             logger.debug(f"Synthesis result reason: {result.reason}")
             
             if result.reason == ResultReason.SynthesizingAudioCompleted:
-                # Read the generated audio file
                 with open(temp_file_path, 'rb') as audio_file:
                     audio_data = audio_file.read()
                 
@@ -214,6 +244,7 @@ def synthesize():
     except Exception as e:
         logger.error(f"Error in synthesize: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
     finally:
         if synthesizer:
             try:
@@ -225,7 +256,6 @@ def synthesize():
         gc.collect()
         
         if temp_file_path:
-            time.sleep(0.5)
             safe_delete_file(temp_file_path)
 
 if __name__ == '__main__':
