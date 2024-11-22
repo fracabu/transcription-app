@@ -207,7 +207,7 @@ const synthesizeSpeech = async () => {
 <template>
   <div class="app-container">
     <h1 class="title">Audio to Text - Text to Audio</h1>
-    <h3 class="subtitle">powered by Azure</h3>
+    <h3 class="subtitle">powered by Azure Cognitive Services</h3>
     <main class="main-container">
       <!-- Speech to Text -->
       <div class="card">
