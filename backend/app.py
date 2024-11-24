@@ -215,58 +215,56 @@ def continuous_recognize_with_diarization(speech_config, audio_config, output_fo
 @app.route('/api/transcribe', methods=['POST'])
 def transcribe():
     try:
-        # Ottieni il file audio o video e la lingua dalla richiesta
+        # Ottieni i parametri dalla richiesta
         audio_file = request.files.get('audio')
         language = request.form.get('language', 'en-US')
+        output_format = request.form.get('output_format', 'verbatim')  # Default mode: verbatim
 
         if not audio_file:
             return jsonify({'error': 'No audio file provided'}), 400
 
-        logger.debug(f"Processing audio file: {audio_file.filename}")
-        logger.debug(f"Selected language: {language}")
-
-        # Salva il file audio nella cartella "synthesized_audio"
+        # Salva il file audio caricato
         input_path = os.path.join(UPLOAD_FOLDER, secure_filename(audio_file.filename))
         audio_file.save(input_path)
-        logger.debug(f"File saved to: {input_path}")
-
-        # Percorso del file WAV convertito
         wav_path = os.path.join(UPLOAD_FOLDER, f"{os.path.splitext(audio_file.filename)[0]}.wav")
-
-        # Converti il file audio in formato WAV
+        
+        # Converti il file in formato WAV
         if not convert_to_wav(input_path, wav_path):
             raise Exception("Failed to convert audio file to WAV format")
 
-        logger.debug(f"File converted to WAV: {wav_path}")
-
-        # Crea la configurazione per Azure Speech Service
+        # Configura Azure Speech
         speech_config = create_speech_config(language)
         audio_config = AudioConfig(filename=wav_path)
 
-        # Esegui la trascrizione continua con diarizzazione
-        logger.debug("Starting continuous transcription with diarization...")
-        transcribed_text = continuous_recognize_with_diarization(speech_config, audio_config)
-        logger.debug("Transcription completed")
+        # Esegui la trascrizione con la modalità selezionata
+        transcribed_text = continuous_recognize_with_diarization(
+            speech_config,
+            audio_config,
+            output_format=output_format  # Usa la modalità selezionata
+        )
 
         # Salva la trascrizione nella cartella "transcriptions"
         if transcribed_text:
             transcription_filename = f"{os.path.splitext(audio_file.filename)[0]}.txt"
             transcription_file = os.path.join(TRANSCRIPTION_FOLDER, transcription_filename)
+
             with open(transcription_file, 'w', encoding='utf-8') as f:
                 f.write(transcribed_text)
 
-            logger.debug(f"Transcription saved to: {transcription_file}")
-
+            # Restituisci sia la trascrizione sia il percorso del file salvato
             return jsonify({
                 'transcription': transcribed_text,
                 'file_path': transcription_file
             })
+
         else:
             return jsonify({'error': 'No speech could be recognized'}), 400
 
     except Exception as e:
         logger.error(f"Error in transcribe: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/api/synthesize', methods=['POST'])
 def synthesize():
