@@ -1,0 +1,192 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+**/__pycache__/
+**/*.cpython-*
+*.cpython-310.pyc
+**/site-packages/
+**/Lib/site-packages/
+
+# Audio and Media files
+*.wav
+*.mp3
+*.m4a
+*.aac
+*.wma
+*.ogg
+*.flac
+*.aiff
+*.aifc
+*.webm
+*.opus
+*.mid
+*.midi
+*.asd
+*.mp4
+*.mov
+*.wmv
+*.avi
+*.mkv
+*.flv
+*.3gp
+*.m4v
+
+# Output audio directories
+**/transcriptions/
+**/synthesized_audio/
+**/audio_output/
+**/recordings/
+**/processed_audio/
+backend/transcriptions/
+backend/synthesized_audio/
+frontend/public/audio/
+dist/audio/
+
+# Python Virtual Environment
+venv/
+env/
+ENV/
+backend/venv/
+backend/**/venv/
+.env
+.venv
+.Python
+env.bak/
+venv.bak/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# IDEs and editors
+.idea/
+.vscode/
+**/.vscode/
+*.swp
+*.swo
+*.swn
+*.bak
+*.sublime-workspace
+*.sublime-project
+.project
+.classpath
+.settings/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Build and output directories
+dist/
+dist-ssr/
+build/
+out/
+.next/
+.nuxt/
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+coverage/
+.build/
+.svelte-kit/
+.vite/
+
+# Environment files
+.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production
+.env.*
+
+# Frontend specific
+.env.d.ts
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Dependency directories
+bower_components/
+
+# Testing
+cypress/videos/
+cypress/screenshots/
+cypress/fixtures/
+.jest/
+*.testresults
+.vitest/
+results.xml
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
+.temp
+.tmp
+*.pid
+*.seed
+*.pid.lock
+
+# Compressed files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Cloud and deployment
+.firebase/
+.aws/
+.aws-sam/
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Misc development files
+*.orig
+*.rej
+*.patch
+*.diff
+.git-rewrite/
