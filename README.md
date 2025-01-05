@@ -263,6 +263,67 @@ npm run dev
 
 Accedi all'app su `http://localhost:5173`
 
+## Avvio in locale una volta installata sul proprio pc
+Sì, esattamente! Seguendo questi passaggi, avvierai sia il frontend che il backend della tua applicazione devi utilizzare due prompt separati uno per fe e uno per be
+
+---
+
+### **Avvio del Frontend**
+1. Spostati nella directory del frontend:
+   ```bash
+   cd transcription-app
+   cd frontend
+   ```
+
+2. Avvia il server di sviluppo:
+   ```bash
+   npm run dev
+   ```
+
+   Il frontend sarà accessibile, di solito, su `http://localhost:5173`.
+
+---
+
+### **Avvio del Backend**
+1. Spostati nella directory del backend:
+   ```bash
+   cd transcription-app
+   cd backend
+   ```
+
+2. Crea l'ambiente virtuale (solo se non esiste già):
+   ```bash
+   python -m venv venv
+   ```
+
+3. Attiva l'ambiente virtuale:
+   ```bash
+   venv\Scripts\activate
+   ```
+
+4. Installa le dipendenze dal file `requirements.txt`:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. Avvia il backend:
+   ```bash
+   python app.py
+   ```
+
+---
+
+### **Controllo**
+1. Dopo aver avviato il frontend e il backend:
+   - **Frontend**: Assicurati che sia accessibile su `http://localhost:5173`.
+   - **Backend**: Di solito sarà accessibile su `http://127.0.0.1:5000` (o un'altra porta configurata nel tuo script `app.py`).
+
+2. Testa la comunicazione tra il frontend e il backend (ad esempio, tramite una funzione di login o una chiamata API).
+
+---
+
+Se incontri problemi, condividi i messaggi di errore e ti aiuterò a risolverli! 😊
+
 ## 📜 Licenza
 MIT License
 
