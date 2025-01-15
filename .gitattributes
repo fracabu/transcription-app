@@ -1,39 +1,49 @@
-# JavaScript e TypeScript
-*.js linguaggio=JavaScript
-*.jsx linguaggio=JavaScript
-*.ts linguaggio=TypeScript
-*.tsx linguaggio=TypeScript
+# Auto detect text files and perform LF normalization
+* text=auto
 
-# Vue.js (frontend framework utilizzato per la UI)
-*.vue linguaggio=Vue
+# Frontend
+*.vue linguist-language=Vue
+*.ts linguist-language=TypeScript
+*.js linguist-language=JavaScript
+*.css linguist-language=CSS
+*.html linguist-language=HTML
 
-# CSS e Tailwind (per lo styling)
-*.css linguaggio=CSS
-*.scss linguaggio=CSS
-*.tailwind.css linguaggio=CSS
+# Backend
+*.py linguist-language=Python
+requirements.txt linguist-language=Python
 
-# Configurazioni per Vite (usato nel frontend) e Next.js (se applicabile)
-vite.config.js linguaggio=JavaScript
-next.config.js linguaggio=JavaScript
-vite.config.ts linguaggio=TypeScript
-next.config.ts linguaggio=TypeScript
+# Documentation
+*.md text
+*.txt text
 
-# Configurazioni per Tailwind CSS
-tailwind.config.js linguaggio=JavaScript
-tailwind.config.ts linguaggio=TypeScript
+# Configuration files
+*.json text
+*.yaml text
+*.yml text
+*.config.js text
+*.env.example text
 
-# Backend (Python e Flask) e Azure Cognitive Services
-*.py linguaggio=Python # Utilizzato per l'integrazione con Azure Cognitive Services
-requirements.txt linguaggio=plaintext # Librerie necessarie, inclusi i pacchetti di Azure
-.env linguaggio=plaintext # File di configurazione per le chiavi di Azure Speech Service
-app.py linguaggio=Python # Script principale del backend
+# Binary files
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.mp3 binary
+*.wav binary
+*.svg text
 
-# Risorse statiche
-*.html linguaggio=HTML
-*.json linguaggio=JSON
+# Lock files
+package-lock.json binary
+yarn.lock binary
 
-# Ignora file o cartelle non rilevanti
-node_modules/* linguaggio=ignora
-dist/* linguaggio=ignora
-build/* linguaggio=ignora
-public/* linguaggio=ignora
+# Enforce Unix line endings
+*.vue text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.py text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+
+# Vendored code
+frontend/node_modules/* linguist-vendored
+backend/venv/* linguist-vendored
