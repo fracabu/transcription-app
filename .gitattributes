@@ -4,22 +4,33 @@
 *.ts linguaggio=TypeScript
 *.tsx linguaggio=TypeScript
 
-# Vue.js (se lo usi)
+# Vue.js (frontend framework utilizzato per la UI)
 *.vue linguaggio=Vue
 
-# CSS e Tailwind
+# CSS e Tailwind (per lo styling)
 *.css linguaggio=CSS
 *.scss linguaggio=CSS
 *.tailwind.css linguaggio=CSS
 
-# Configurazioni per Next.js e Vite
+# Configurazioni per Vite (usato nel frontend) e Next.js (se applicabile)
 vite.config.js linguaggio=JavaScript
 next.config.js linguaggio=JavaScript
+vite.config.ts linguaggio=TypeScript
 next.config.ts linguaggio=TypeScript
 
-# Configurazioni per Tailwind
+# Configurazioni per Tailwind CSS
 tailwind.config.js linguaggio=JavaScript
 tailwind.config.ts linguaggio=TypeScript
+
+# Backend (Python e Flask) e Azure Cognitive Services
+*.py linguaggio=Python # Utilizzato per l'integrazione con Azure Cognitive Services
+requirements.txt linguaggio=plaintext # Librerie necessarie, inclusi i pacchetti di Azure
+.env linguaggio=plaintext # File di configurazione per le chiavi di Azure Speech Service
+app.py linguaggio=Python # Script principale del backend
+
+# Risorse statiche
+*.html linguaggio=HTML
+*.json linguaggio=JSON
 
 # Ignora file o cartelle non rilevanti
 node_modules/* linguaggio=ignora
