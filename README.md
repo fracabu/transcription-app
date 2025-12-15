@@ -1,332 +1,157 @@
-# 📝 Transcription App 🎙️
-An advanced web application that converts audio to text and text to audio using **Azure Cognitive Services**. The app supports multiple languages, real-time transcription, voice synthesis, and provides an intuitive interface.
+<h1 align="center">Transcription App</h1>
+<h3 align="center">Speech-to-Text & Text-to-Speech with Azure AI</h3>
 
-## 🔌 API Documentation
+<p align="center">
+  <em>Multi-language audio transcription and voice synthesis</em>
+</p>
 
-### Audio Transcription (Speech-to-Text)
-```
-POST /api/transcribe
-```
-**Request (multipart/form-data)**:
-- `audio`: Audio file to transcribe
-- `language`: Language code (e.g., "en-US", "it-IT")
-- `output_format`: Output format (optional)
-  - `verbatim`: Detailed transcription with timestamps [default]
-  - `clean`: Clean text only
-  - `subtitles`: Subtitles format (SRT)
-  - `timestamps`: Text with start and end timestamps
+<p align="center">
+  <img src="https://img.shields.io/badge/Vue.js-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue.js" />
+  <img src="https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white" alt="Flask" />
+  <img src="https://img.shields.io/badge/Azure_Cognitive-0078D4?style=flat-square&logo=microsoft-azure&logoColor=white" alt="Azure" />
+  <img src="https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+</p>
 
-**Response (JSON)**:
-```json
-{
-    "transcription": "Transcribed text here",
-    "file_path": "path/to/saved/file.txt"
-}
-```
+<p align="center">
+  :gb: <a href="#english">English</a> | :it: <a href="#italiano">Italiano</a>
+</p>
 
-### Voice Synthesis (Text-to-Speech)
-```
-POST /api/synthesize
-```
-**Request (JSON)**:
-```json
-{
-    "text": "Text to convert to audio",
-    "language": "en-US"
-}
-```
-**Response**: 
-- Audio file (WAV format)
-- Content-Type: audio/wav
+---
 
-### Error Handling
-All APIs return errors in this format:
-```json
-{
-    "error": "Error description"
-}
-```
+<a name="english"></a>
+## :gb: English
 
-## ✨ Features
+### Overview
 
-### 🎤 Audio to Text Transcription
-* Support for uploaded audio files or microphone recordings
-* Multiple languages (English, Italian, Spanish, etc.)
-* Automatic speaker diarization
-* Customizable output formats
+An advanced web application that converts audio to text and text to audio using **Azure Cognitive Services**. Supports multiple languages, real-time transcription, voice synthesis, and provides an intuitive interface.
 
-### 🔊 Text to Audio Synthesis
-* High-quality text-to-audio conversion
-* WAV format downloads
-* Multiple languages and voices available
+### Features
 
-### 📂 File Management
-* Support for common audio formats (MP3, WAV)
-* Direct browser recording
+- **Speech-to-Text** - Upload audio files or record from microphone
+- **Text-to-Speech** - High-quality voice synthesis with WAV download
+- **Multi-Language** - English, Italian, Spanish, and more
+- **Output Formats** - Verbatim, clean text, subtitles (SRT), timestamps
+- **Speaker Diarization** - Automatic speaker identification
 
-## 🛠️ Tech Stack
+### API Endpoints
 
-### Backend
-* **Framework**: Flask
-* **Main Libraries**:
-  * `azure-cognitiveservices-speech`
-  * `flask-cors`
-  * `pydub`
-  * `python-dotenv`
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/transcribe` | POST | Audio to text transcription |
+| `/api/synthesize` | POST | Text to audio synthesis |
 
-### Frontend
-* **Framework**: Vue.js
-* **Tools**:
-  * `axios`
-  * `tailwindcss`
-  * `pinia`
+### Tech Stack
 
-## 🚀 Installation
+| Layer | Technology |
+|-------|------------|
+| Frontend | Vue.js, Tailwind CSS, Pinia |
+| Backend | Flask, Python 3.8+ |
+| AI | Azure Cognitive Services |
+| Audio | pydub |
 
-### Prerequisites
-* Python 3.8+
-* Node.js 16+
-* Azure Speech Service Account
+### Quick Start
 
-### Backend Setup
-1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/transcription-app.git
-cd transcription-app/backend
-```
+# Clone
+git clone https://github.com/fracabu/transcription-app.git
+cd transcription-app
 
-2. Create and activate virtual environment:
-```bash
+# Backend
+cd backend
 python -m venv venv
-# Windows
-venv\Scripts\activate
-# Unix/MacOS
-source venv/bin/activate
-```
-
-3. Install dependencies:
-```bash
+venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-```
 
-4. Configuration:
-* Copy `.env.example` to `.env`
-* Add your Azure credentials:
-```
+# Create .env
 AZURE_SPEECH_KEY=your_key
 AZURE_SPEECH_REGION=your_region
-```
 
-### Frontend Setup
-```bash
+python app.py
+
+# Frontend (new terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
-Access the app at `http://localhost:5173`
+Access at `http://localhost:5173`
 
-## 📜 License
-MIT License
+---
 
-## 🤝 Contributing
-Contributions are welcome! Fork the repository and submit a pull request.
+<a name="italiano"></a>
+## :it: Italiano
 
+### Panoramica
 
+Un'applicazione web avanzata che converte audio in testo e testo in audio usando **Azure Cognitive Services**. Supporta piu lingue, trascrizione real-time, sintesi vocale e offre un'interfaccia intuitiva.
 
+### Funzionalita
 
-# 📝 Transcription App 🎙️
-Un'applicazione web avanzata che converte l'audio in testo e il testo in audio utilizzando **Azure Cognitive Services**. L'app supporta più lingue, trascrizione in tempo reale, sintesi vocale e offre un'interfaccia intuitiva.
+- **Speech-to-Text** - Carica file audio o registra dal microfono
+- **Text-to-Speech** - Sintesi vocale alta qualita con download WAV
+- **Multi-Lingua** - Italiano, Inglese, Spagnolo e altre
+- **Formati Output** - Verbatim, testo pulito, sottotitoli (SRT), timestamp
+- **Diarizzazione** - Identificazione automatica parlanti
 
-## 🔌 Documentazione API
+### Endpoint API
 
-### Trascrizione Audio (Speech-to-Text)
-```
-POST /api/transcribe
-```
-**Richiesta (multipart/form-data)**:
-- `audio`: File audio da trascrivere
-- `language`: Codice lingua (es. "it-IT", "en-US")
-- `output_format`: Formato output (opzionale) 
-  - `verbatim`: Trascrizione dettagliata con timestamp [default]
-  - `clean`: Solo testo pulito
-  - `subtitles`: Formato sottotitoli (SRT)
-  - `timestamps`: Testo con timestamp di inizio e fine
+| Endpoint | Metodo | Descrizione |
+|----------|--------|-------------|
+| `/api/transcribe` | POST | Trascrizione audio in testo |
+| `/api/synthesize` | POST | Sintesi testo in audio |
 
-**Risposta (JSON)**:
-```json
-{
-    "transcription": "Testo trascritto qui",
-    "file_path": "percorso/al/file/salvato.txt"
-}
-```
+### Stack Tecnologico
 
-### Sintesi Vocale (Text-to-Speech)
-```
-POST /api/synthesize
-```
-**Richiesta (JSON)**:
-```json
-{
-    "text": "Testo da convertire in audio",
-    "language": "it-IT"
-}
-```
-**Risposta**: 
-- File audio (formato WAV)
-- Content-Type: audio/wav
+| Layer | Tecnologia |
+|-------|------------|
+| Frontend | Vue.js, Tailwind CSS, Pinia |
+| Backend | Flask, Python 3.8+ |
+| AI | Azure Cognitive Services |
+| Audio | pydub |
 
-### Gestione Errori
-Tutte le API restituiscono gli errori in questo formato:
-```json
-{
-    "error": "Descrizione dell'errore"
-}
-```
+### Avvio Rapido
 
-## ✨ Funzionalità
-
-### 🎤 Trascrizione da Audio a Testo
-* Supporto per file audio caricati o registrazioni dal microfono
-* Multiple lingue (Italiano, Inglese, Spagnolo, etc.)
-* Diarizzazione automatica dei parlanti
-* Formati di output personalizzabili
-
-### 🔊 Sintesi da Testo a Audio
-* Conversione testo in audio di alta qualità
-* Download in formato WAV
-* Multiple lingue e voci disponibili
-
-### 📂 Gestione File
-* Supporto formati audio comuni (MP3, WAV)
-* Registrazione diretta dal browser
-
-## 🛠️ Stack Tecnologico
-
-### Backend
-* **Framework**: Flask
-* **Librerie principali**:
-  * `azure-cognitiveservices-speech`
-  * `flask-cors`
-  * `pydub`
-  * `python-dotenv`
-
-### Frontend
-* **Framework**: Vue.js
-* **Strumenti**:
-  * `axios`
-  * `tailwindcss`
-  * `pinia`
-
-## 🚀 Installazione
-
-### Prerequisiti
-* Python 3.8+
-* Node.js 16+
-* Account Azure Speech Service
-
-### Setup Backend
-1. Clona il repository:
 ```bash
-git clone https://github.com/your-username/transcription-app.git
-cd transcription-app/backend
-```
+# Clone
+git clone https://github.com/fracabu/transcription-app.git
+cd transcription-app
 
-2. Crea e attiva l'ambiente virtuale:
-```bash
+# Backend
+cd backend
 python -m venv venv
-# Windows
-venv\Scripts\activate
-# Unix/MacOS
-source venv/bin/activate
-```
-
-3. Installa le dipendenze:
-```bash
+venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-```
 
-4. Configurazione:
-* Copia `.env.example` in `.env`
-* Aggiungi le tue credenziali Azure:
-```
-AZURE_SPEECH_KEY=la_tua_chiave
-AZURE_SPEECH_REGION=la_tua_regione
-```
+# Crea .env
+AZURE_SPEECH_KEY=tua_chiave
+AZURE_SPEECH_REGION=tua_regione
 
-### Setup Frontend
-```bash
+python app.py
+
+# Frontend (nuovo terminale)
 cd frontend
 npm install
 npm run dev
 ```
 
-Accedi all'app su `http://localhost:5173`
-
-## Avvio in locale una volta installata sul proprio pc
-Sì, esattamente! Seguendo questi passaggi, avvierai sia il frontend che il backend della tua applicazione devi utilizzare due prompt separati uno per fe e uno per be
+Accedi su `http://localhost:5173`
 
 ---
 
-### **Avvio del Frontend**
-1. Spostati nella directory del frontend:
-   ```bash
-   cd transcription-app
-   cd frontend
-   ```
+## Requirements
 
-2. Avvia il server di sviluppo:
-   ```bash
-   npm run dev
-   ```
+- Python 3.8+
+- Node.js 16+
+- Azure Speech Service account
 
-   Il frontend sarà accessibile, di solito, su `http://localhost:5173`.
+## License
+
+MIT
 
 ---
 
-### **Avvio del Backend**
-1. Spostati nella directory del backend:
-   ```bash
-   cd transcription-app
-   cd backend
-   ```
-
-2. Crea l'ambiente virtuale (solo se non esiste già):
-   ```bash
-   python -m venv venv
-   ```
-
-3. Attiva l'ambiente virtuale:
-   ```bash
-   venv\Scripts\activate
-   ```
-
-4. Installa le dipendenze dal file `requirements.txt`:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. Avvia il backend:
-   ```bash
-   python app.py
-   ```
-
----
-
-### **Controllo**
-1. Dopo aver avviato il frontend e il backend:
-   - **Frontend**: Assicurati che sia accessibile su `http://localhost:5173`.
-   - **Backend**: Di solito sarà accessibile su `http://127.0.0.1:5000` (o un'altra porta configurata nel tuo script `app.py`).
-
-2. Testa la comunicazione tra il frontend e il backend (ad esempio, tramite una funzione di login o una chiamata API).
-
----
-
-Se incontri problemi, condividi i messaggi di errore e ti aiuterò a risolverli! 😊
-
-## 📜 Licenza
-MIT License
-
-## 🤝 Contributi
-I contributi sono benvenuti! Fai una fork del repository e invia una pull request.
-
+<p align="center">
+  <a href="https://github.com/fracabu">
+    <img src="https://img.shields.io/badge/Made_by-fracabu-8B5CF6?style=flat-square" alt="Made by fracabu" />
+  </a>
+</p>
